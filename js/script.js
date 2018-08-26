@@ -1,95 +1,136 @@
+let eventListeners = {
+    tabs() {
+        let info = document.getElementsByClassName('info-header')[0],
+            infoTab = document.getElementsByClassName('info-header-tab'),
+            infoCnt = document.getElementsByClassName('info-tabcontent');
+
+        function hideTabContent(a) {
+            for (let i = a; i < infoCnt.length; i++) {
+                infoCnt[i].classList.remove('show');
+                infoCnt[i].classList.add('hide');
+            }
+        }
+        hideTabContent(1);
+
+        function showTabContent(b) {
+            if (infoCnt[b].classList.contains('hide')) {
+                hideTabContent(0);
+                infoCnt[b].classList.remove('hide');
+                infoCnt[b].classList.add('show');
+            }
+        }
+
+        info.addEventListener('click', function (event) {
+            let target = event.target;
+            if (target.className == 'info-header-tab') {
+                for (let i = 0; i < infoTab.length; i++) {
+                    if (target == infoTab[i]) {
+                        showTabContent(i);
+                        break;
+                    }
+                }
+            }
+        });
+    }
+}
+let timesParam = {
+    downDate: "Aug 25, 2018 23:59:59",
+    domElements: {
+        hours: document.querySelector('#timer .hours'),
+        minutes: document.querySelector('#timer .minutes'),
+        seconds: document.querySelector('#timer .seconds'),
+        timerAction:  document.querySelector('.timer .timer-action'),
+    },
+    ms() {
+        return this.getDifferent();
+    },
+    days() {
+        return this.getDays(this.getDifferent());
+    },
+    hours(ms) {
+        return this.getHours(this.getDifferent());
+    },
+    minutes(ms) {
+        return this.getMinutes(this.getDifferent());
+    },
+    seconds(ms) {
+        return this.getSeconds(this.getDifferent());
+    },
+
+    getCurDate() {
+        return new Date().getTime();
+    },
+    getDownDate() {
+        return new Date(this.downDate).getTime();
+    },
+    getDifferent() {
+        return this.getDownDate() - this.getCurDate();
+    },
+    getDays(ms) {
+        return Math.floor(ms / (1000 * 60 * 60 * 24));
+    },
+    getHours(ms) {
+        return Math.floor((ms % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    },
+    getMinutes(ms) {
+        return Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+    },
+    getSeconds(ms) {
+        return Math.floor((ms % (1000 * 60)) / 1000);
+    }
+}
+
+
 window.addEventListener("DOMContentLoaded", function() {
-    let info = document.getElementsByClassName('info-header')[0],
-        infoTab = document.getElementsByClassName('info-header-tab'),
-        infoCnt = document.getElementsByClassName('info-tabcontent');
+    eventListeners.tabs();
+});
 
-    function hideTabContent(a) {
-        for (let i = a; i< infoCnt.length; i++) {
-            infoCnt[i].classList.remove('show');
-            infoCnt[i].classList.add('hide');
+document.addEventListener("DOMContentLoaded", function(){
+    let t = setInterval(function(obj = timesParam) {
+        let res = {
+            different() {
+                return obj.getDifferent();
+            },
+            hours() {
+                return (obj.hours() < 10) ? `0${obj.hours()}` : obj.hours();
+            },
+            minutes() {
+                return (obj.minutes() < 10) ? `0${obj.minutes()}` : obj.minutes();
+            },
+            seconds() {
+                return (obj.seconds() < 10) ? `0${obj.seconds()}` : obj.seconds();
+            }
         }
-    }
-    hideTabContent(1);
+        obj.domElements.hours.textContent = `${res.hours()}`;
+        obj.domElements.minutes.textContent = `${res.minutes()}`;
+        obj.domElements.seconds.textContent = `${res.seconds()}`;
 
-    function showTabContent(b) {
-        if (infoCnt[b].classList.contains('hide')) {
-            hideTabContent(0);
-            infoCnt[b].classList.remove('hide');
-            infoCnt[b].classList.add('show');
+        if (res.different() < 0) {
+            clearInterval(t),
+                obj.domElements.hours.textContent = `00`;
+            obj.domElements.minutes.textContent = `00`;
+            obj.domElements.seconds.textContent = `00`;
+            obj.domElements.timerAction.textContent = `EXPIRED`;
         }
-    }
+    }, 1000);
+});
 
-    info.addEventListener('click', function (event) {
-        let target = event.target;
-        if (target.className == 'info-header-tab') {
-           for (let i = 0; i < infoTab.length; i ++) {
-               if (target == infoTab[i]) {
-                   showTabContent(i);
-                   break;
-               }
-           }
-        }
+
+document.addEventListener("DOMContentLoaded", function(){
+    let moreBtn = document.querySelector('.more'),
+        overlay = document.querySelector('.overlay'),
+        close = document.querySelector('.popup-close');
+
+    moreBtn.addEventListener('click', function () {
+        this.classList.add('more-splash');
+        overlay.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+
     });
 
-
-
-
-
-    // clock
-
-    let clocksHeader = () => {
-        let hours = document.querySelector('.hours');
-        let minutes = document.querySelector('.minutes');
-        let seconds = document.querySelector('.seconds');
-        let hours_data = 1;
-        let minutes_data = 1;
-        let seconds_data = 5;
-
-        let timer = setInterval(function() {
-            hours.innerHTML = hours_data;
-            minutes.innerHTML = minutes_data;
-            seconds.innerHTML = seconds_data--;
-
-            if(hours_data < 10) {
-                hours.innerHTML = '<span>0</span>' + hours_data;
-            }
-            if(seconds_data < 10) {
-                seconds.innerHTML = '<span>0</span>' + seconds_data;
-            }
-            if(minutes_data < 10) {
-                minutes.innerHTML = '<span>0</span>' + minutes_data;
-            }
-
-
-
-
-
-            // что то не корректно отрабатывает счетчик
-
-
-            if(seconds_data == 0) {
-                minutes_data = 59;
-                hours_data--;
-                if(hours_data < 0) clearInterval(timer)
-            }
-
-
-            if(seconds_data == 0) {
-                seconds_data = 59;
-                minutes_data--;
-                if(minutes_data < 0) clearInterval(timer)
-            }
-
-
-
-
-
-
-
-
-        }, 1000);
-
-    }
-    clocksHeader();
-
+    close.addEventListener('click', function () {
+        overlay.style.display = 'none';
+        moreBtn.classList.remove('more-splash');
+        document.body.style.overflow = '';
+    });
 });
